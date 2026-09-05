@@ -38,6 +38,8 @@
  */
 
 #include "OptionsDialog.h"
+#include "Agent/AgentSettingsPage.h"
+#include <QDir>
 #include "OptionsDefaults.h"
 #include "MainWindow.h"
 #include "OMC/OMCProxy.h"
@@ -132,6 +134,7 @@ OptionsDialog::OptionsDialog(QWidget *pParent)
   mpOMSimulatorPage = new OMSimulatorPage(this);
   mpSensitivityOptimizationPage = new SensitivityOptimizationPage(this);
   mpTraceabilityPage = new TraceabilityPage(this);
+  mpAIAgentPage = new AIAgentPage(this);
   // Get the settings.
   // Don't read the settings in case we are running the testsuite. We want default OMEdit.
   if (!MainWindow::instance()->isTestsuiteRunning()) {
@@ -183,6 +186,7 @@ void OptionsDialog::readSettings()
   readOMSimulatorSettings();
   readSensitivityOptimizationSettings();
   readTraceabilitySettings();
+  readAIAgentSettings();
 }
 
 //! Reads the General section settings from omedit.ini
@@ -3298,6 +3302,10 @@ void OptionsDialog::addListItems()
   QListWidgetItem *pTraceabilityItem = new QListWidgetItem(mpOptionsList);
   pTraceabilityItem->setIcon(QIcon(":/Resources/icons/traceability.svg"));
   pTraceabilityItem->setText(tr("Traceability"));
+  // AI Agent Item
+  QListWidgetItem *pAIAgentItem = new QListWidgetItem(mpOptionsList);
+  pAIAgentItem->setIcon(QIcon(":/Resources/icons/omedit.png"));
+  pAIAgentItem->setText(tr("AI Agent"));
 }
 
 //! Creates pages for the Options Widget. The pages are created as stacked widget and are mapped with mpOptionsList.
@@ -3328,6 +3336,7 @@ void OptionsDialog::createPages()
   addPage(mpOMSimulatorPage);
   addPage(mpSensitivityOptimizationPage);
   addPage(mpTraceabilityPage);
+  addPage(mpAIAgentPage);
 }
 
 void OptionsDialog::addPage(QWidget* pPage)
@@ -3400,6 +3409,36 @@ void OptionsDialog::reject()
 }
 
 //! Saves the settings to omedit.ini file.
+/*!
+ * \brief OptionsDialog::readAIAgentSettings
+ * Reads the AI Agent settings (node path, kit path, workspace, model) and the MCP server settings the agent relies on.
+ */
+void OptionsDialog::readAIAgentSettings()
+{
+  mpAIAgentPage->getNodePathTextBox()->setText(mpSettings->value("aiAgent/nodePath", "node").toString());
+  mpAIAgentPage->getKitPathTextBox()->setText(mpSettings->value("aiAgent/kitPath", "").toString());
+  mpAIAgentPage->getWorkspaceTextBox()->setText(mpSettings->value("aiAgent/workspace", QDir::homePath() + "/MachinaWorkspace").toString());
+  mpAIAgentPage->getModelTextBox()->setText(mpSettings->value("aiAgent/model", "").toString());
+  mpAIAgentPage->getMCPEnabledCheckBox()->setChecked(mpSettings->value("modelContextProtocol/enabled", false).toBool());
+  mpAIAgentPage->getMCPPortSpinBox()->setValue(mpSettings->value("modelContextProtocol/port", 3000).toInt());
+  mpAIAgentPage->getMCPAdminCheckBox()->setChecked(mpSettings->value("modelContextProtocol/enableAdminTools", true).toBool());
+}
+
+/*!
+ * \brief OptionsDialog::saveAIAgentSettings
+ * Saves the AI Agent settings.
+ */
+void OptionsDialog::saveAIAgentSettings()
+{
+  mpSettings->setValue("aiAgent/nodePath", mpAIAgentPage->getNodePathTextBox()->text());
+  mpSettings->setValue("aiAgent/kitPath", mpAIAgentPage->getKitPathTextBox()->text());
+  mpSettings->setValue("aiAgent/workspace", mpAIAgentPage->getWorkspaceTextBox()->text());
+  mpSettings->setValue("aiAgent/model", mpAIAgentPage->getModelTextBox()->text());
+  mpSettings->setValue("modelContextProtocol/enabled", mpAIAgentPage->getMCPEnabledCheckBox()->isChecked());
+  mpSettings->setValue("modelContextProtocol/port", mpAIAgentPage->getMCPPortSpinBox()->value());
+  mpSettings->setValue("modelContextProtocol/enableAdminTools", mpAIAgentPage->getMCPAdminCheckBox()->isChecked());
+}
+
 void OptionsDialog::saveSettings()
 {
   saveGeneralSettings();
@@ -3435,6 +3474,7 @@ void OptionsDialog::saveSettings()
   saveOMSimulatorSettings();
   saveSensitivityOptimizationSettings();
   saveTraceabilitySettings();
+  saveAIAgentSettings();
   // emit the signal so that all text editors can set settings & line wrapping mode
   emit textSettingsChanged();
   mpSettings->sync();

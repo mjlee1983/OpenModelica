@@ -73,6 +73,7 @@ extern "C" {
 #include <QTimer>
 
 class OMCProxy;
+class AgentWidget;
 class TransformationsWidget;
 class LibraryWidget;
 class ElementWidget;
@@ -131,6 +132,7 @@ public:
   bool getExitApplicationStatus() {return mExitApplicationStatus;}
   int getNumberOfProcessors() {return mNumberOfProcessors;}
   QDockWidget* getMessagesDockWidget() {return mpMessagesDockWidget;}
+  QDockWidget* getAgentDockWidget() {return mpAgentDockWidget;}
   LibraryWidget* getLibraryWidget() {return mpLibraryWidget;}
   ElementWidget* getElementWidget() {return mpElementWidget;}
   StackFramesWidget* getStackFramesWidget() {return mpStackFramesWidget;}
@@ -296,6 +298,7 @@ private:
   SearchWidget *mpSearchWidget;
   QDockWidget *mpSearchDockWidget;
   QDockWidget *mpMessagesDockWidget;
+  QDockWidget *mpAgentDockWidget = nullptr;
   NavigationManagerView *mpNavigationManagerView = nullptr;
   QDockWidget *mpNavigationManagerDockWidget = nullptr;
   LibraryWidget *mpLibraryWidget;
@@ -397,6 +400,11 @@ private:
   QAction *mpToggleTabOrSubWindowView;
   // Simulation Menu
   QAction *mpCheckModelAction;
+  // AI Agent actions
+  QAction *mpAgentShowAction;
+  QAction *mpAgentConvertAction;
+  QAction *mpAgentVerifyAction;
+  QAction *mpAgentExplainAction;
   QAction *mpCheckAllModelsAction;
   QAction *mpInstantiateModelAction;
   QAction *mpSimulationSetupAction;
@@ -503,6 +511,7 @@ signals:
   void resetMessagesTabWidgetNames();
 public slots:
   void showMessageBrowser();
+  void showAgentPanel();
   void switchToWelcomePerspectiveSlot();
   void switchToModelingPerspectiveSlot();
   void switchToPlottingPerspectiveSlot();

@@ -38,6 +38,7 @@
  */
 
 #include "MainWindow.h"
+#include "Agent/AgentWidget.h"
 /* Keep PlotWindowContainer on top to include OSG first */
 #include "Plotting/PlotWindowContainer.h"
 #include "Modeling/ModelWidgetContainer.h"
@@ -259,6 +260,13 @@ void MainWindow::setUpMainWindow(threadData_t *threadData)
 #else
   WasmSplash::setMessage(tr("Reading Settings"));
 #endif
+  // Create the AI Agent dock (chat panel driving the Machina Modelica agent kit through OMEdit's MCP tools).
+  mpAgentDockWidget = new QDockWidget(tr("AI Agent"), this);
+  mpAgentDockWidget->setObjectName("AIAgent");
+  mpAgentDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+  mpAgentDockWidget->setWidget(new AgentWidget(this));
+  addDockWidget(Qt::RightDockWidgetArea, mpAgentDockWidget);
+  mpAgentDockWidget->hide();
   // Get the number of processors.
   mNumberOfProcessors = mpOMCProxy->numProcessors();
   // Create an object of OptionsDialog
@@ -4388,6 +4396,19 @@ void MainWindow::showReSimulateSetup()
 }
 
 //! Defines the actions used by the toolbars
+/*!
+ * \brief MainWindow::showAgentPanel
+ * Shows the AI Agent dock and starts the agent process if needed.
+ */
+void MainWindow::showAgentPanel()
+{
+  if (mpAgentDockWidget) {
+    mpAgentDockWidget->show();
+    mpAgentDockWidget->raise();
+    if (AgentWidget::instance() && !AgentWidget::instance()->isRunning()) AgentWidget::instance()->start();
+  }
+}
+
 void MainWindow::createActions()
 {
   mpSearchBrowserShortcut = new QShortcut(QKeySequence("Ctrl+h"), this);
@@ -4627,6 +4648,19 @@ void MainWindow::createActions()
   mpCheckModelAction->setStatusTip(Helper::checkModelTip);
   mpCheckModelAction->setEnabled(false);
   connect(mpCheckModelAction, SIGNAL(triggered()), SLOT(checkModel()));
+  // AI Agent actions
+  mpAgentShowAction = new QAction(QIcon(":/Resources/icons/omedit.png"), tr("AI Agent Panel"), this);
+  mpAgentShowAction->setStatusTip(tr("Show the AI agent panel: build, fix, convert and simulate models by chat"));
+  mpAgentShowAction->setShortcut(QKeySequence("Ctrl+Shift+A"));
+  connect(mpAgentShowAction, SIGNAL(triggered()), SLOT(showAgentPanel()));
+  mpAgentConvertAction = new QAction(tr("Convert Current Model to Machina"), this);
+  mpAgentConvertAction->setStatusTip(tr("Rewrite the active model with Machina sentences; applied only after side-by-side verification"));
+  connect(mpAgentConvertAction, &QAction::triggered, this, [this]() { showAgentPanel(); if (AgentWidget::instance()) AgentWidget::instance()->convertCurrentModel(); });
+  mpAgentVerifyAction = new QAction(tr("Verify Current Model with Machina"), this);
+  mpAgentVerifyAction->setStatusTip(tr("Check and simulate the active model with stage-classified diagnostics and proposed fixes"));
+  connect(mpAgentVerifyAction, &QAction::triggered, this, [this]() { showAgentPanel(); if (AgentWidget::instance()) AgentWidget::instance()->verifyCurrentModel(); });
+  mpAgentExplainAction = new QAction(tr("Explain Current Model"), this);
+  connect(mpAgentExplainAction, &QAction::triggered, this, [this]() { showAgentPanel(); if (AgentWidget::instance()) AgentWidget::instance()->explainCurrentModel(); });
   // check all models action
   mpCheckAllModelsAction = new QAction(QIcon(":/Resources/icons/check-all.svg"), Helper::checkAllModels, this);
   mpCheckAllModelsAction->setStatusTip(Helper::checkAllModelsTip);
@@ -5032,6 +5066,7 @@ void MainWindow::createMenus()
   pViewWindowsMenu->addAction(mpDocumentationDockWidget->toggleViewAction());
   pViewWindowsMenu->addAction(mpVariablesDockWidget->toggleViewAction());
   pViewWindowsMenu->addAction(mpMessagesDockWidget->toggleViewAction());
+  pViewWindowsMenu->addAction(mpAgentDockWidget->toggleViewAction());
   pViewWindowsMenu->addAction(mpFindUsageDockWidget->toggleViewAction());
   pViewWindowsMenu->addAction(mpSearchDockWidget->toggleViewAction());
   if (isDebug()) {
@@ -5176,6 +5211,15 @@ void MainWindow::createMenus()
   pToolsMenu->addAction(mpOptionsAction);
   // add Tools menu to menu bar
   menuBar()->addAction(pToolsMenu->menuAction());
+  // AI Agent menu
+  QMenu *pAgentMenu = new QMenu(menuBar());
+  pAgentMenu->setTitle(tr("&AI Agent"));
+  pAgentMenu->addAction(mpAgentShowAction);
+  pAgentMenu->addSeparator();
+  pAgentMenu->addAction(mpAgentVerifyAction);
+  pAgentMenu->addAction(mpAgentConvertAction);
+  pAgentMenu->addAction(mpAgentExplainAction);
+  menuBar()->addAction(pAgentMenu->menuAction());
   // Help menu
   QMenu *pHelpMenu = new QMenu(menuBar());
   pHelpMenu->setTitle(tr("&Help"));

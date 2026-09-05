@@ -135,6 +135,8 @@ set(OMEDITLIB_SOURCES Util/Helper.cpp
                       MCP/MCPServer.cpp
                       MCP/MCPToolsSimulation.cpp
                       MCP/MCPToolsDiagram.cpp
+                      Agent/AgentWidget.cpp
+                      Agent/AgentSettingsPage.cpp
                       Search/FindUsageWidget.cpp
                       Animation/OpenGLWidget.cpp
                       Animation/AbstractAnimationWindow.cpp
@@ -275,6 +277,8 @@ set(OMEDITLIB_HEADERS Util/Helper.h
                       FlatModelica/Parser.h
                       MCP/MCPServer.h
                       MCP/MCPServerPrivate.h
+                      Agent/AgentWidget.h
+                      Agent/AgentSettingsPage.h
                       Search/FindUsageWidget.h
                       Animation/OpenGLWidget.h
                       Animation/AbstractAnimationWindow.h

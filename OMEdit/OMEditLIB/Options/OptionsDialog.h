@@ -77,6 +77,7 @@ class FMIPage;
 class OMSimulatorPage;
 class SensitivityOptimizationPage;
 class TraceabilityPage;
+class AIAgentPage;
 class TabSettings;
 class StackFramesWidget;
 class TranslationFlagsWidget;
@@ -125,6 +126,7 @@ public:
   void readOMSimulatorSettings();
   void readSensitivityOptimizationSettings();
   void readTraceabilitySettings();
+  void readAIAgentSettings();
   void saveGeneralSettings();
   void saveNFAPISettings();
   void saveLibrariesSettings();
@@ -139,6 +141,7 @@ public:
   void saveOMSimulatorSettings();
   void saveSensitivityOptimizationSettings();
   void saveTraceabilitySettings();
+  void saveAIAgentSettings();
   void saveGraphicalViewsSettings();
   void saveSimulationSettings();
   void saveGlobalSimulationSettings();
@@ -179,6 +182,7 @@ public:
   OMSimulatorPage* getOMSimulatorPage() {return mpOMSimulatorPage;}
   SensitivityOptimizationPage* getSensitivityOptimizationPage() {return mpSensitivityOptimizationPage;}
   TraceabilityPage* getTraceabilityPage() {return mpTraceabilityPage;}
+  AIAgentPage* getAIAgentPage() {return mpAIAgentPage;}
   void emitModelicaEditorSettingsChanged() {emit modelicaEditorSettingsChanged();}
   void saveDialogGeometry();
   void show();
@@ -233,6 +237,7 @@ private:
   OMSimulatorPage *mpOMSimulatorPage;
   SensitivityOptimizationPage *mpSensitivityOptimizationPage;
   TraceabilityPage *mpTraceabilityPage;
+  AIAgentPage *mpAIAgentPage;
   QSettings *mpSettings;
   QListWidget *mpOptionsList;
   QStackedWidget *mpPagesWidget;

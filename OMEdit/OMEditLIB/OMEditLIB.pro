@@ -205,6 +205,8 @@ SOURCES += Util/Helper.cpp \
   FlatModelica/Parser.cpp \
   MCP/MCPServer.cpp \
   MCP/MCPToolsDiagram.cpp \
+  Agent/AgentWidget.cpp \
+  Agent/AgentSettingsPage.cpp \
   MCP/MCPToolsSimulation.cpp \
   Search/FindUsageWidget.cpp
 
@@ -331,6 +333,8 @@ HEADERS  += Util/Helper.h \
   FlatModelica/Parser.h \
   MCP/MCPServer.h \
   MCP/MCPServerPrivate.h \
+  Agent/AgentWidget.h \
+  Agent/AgentSettingsPage.h \
   Search/FindUsageWidget.h
 
 CONFIG(osg) {
