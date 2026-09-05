@@ -27,3 +27,24 @@ writes and verifies Modelica but cannot drive the diagram. Node.js 18+ for the k
 
 `Agent/AgentWidget.{h,cpp}` (dock + process bridge), `Agent/AgentSettingsPage.{h,cpp}` (options page),
 wiring in `MainWindow.{h,cpp}`, `Options/OptionsDialog.{h,cpp}`, `CMakeLists.txt`, `OMEditLIB.pro`.
+
+
+## Verified end to end (2026-09-05)
+
+Headless run of the built OMEdit (Linux arm64, Xvfb) with the Machina agent kit driving it over the MCP server:
+the agent read the Machina sheet, verified a Machina mass-spring-damper with the local omc (`machina_check`),
+loaded Machina into the GUI (`omedit_loadFile`), created the class (`omedit_createClass` + `omedit_setSourceCode`),
+simulated it (`omedit_simulate`) and read the final position back from the result
+(`omedit_getSimulationResultVariables`): 0.005346 m at 10 s, matching the oracle. Nine tool steps.
+
+Requirements learned from that run:
+
+- **Node.js 20 or newer** on the machine (the kit's MCP SDK needs `fetch`/`undici`; Ubuntu 24.04's Node 18 fails).
+- **omc refuses interactive server mode as root**; run OMEdit as a normal user.
+- **The Modelica Standard Library is not part of an OpenModelica source build.** Either install it once
+  (`installPackage(Modelica, "4.0.0+maint.om", exactMatch=true)` in the OMC shell, which writes to
+  `~/.openmodelica/libraries`) or ship it under `<install>/lib/omlibrary` and start OMEdit through
+  `omedit-ai` (this folder), which sets `OPENMODELICALIBRARY` to the bundled tree plus the user's libraries.
+  omc only honours `OPENMODELICALIBRARY`, not `MODELICAPATH`.
+- The kit is self-contained (`agent/lib/` carries `Machina.mo` and the sheet); point Tools > Options > AI Agent >
+  kit folder at it and run `machina-modelica init <workspace>` once per workspace.

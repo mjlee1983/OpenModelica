@@ -1,0 +1,9 @@
+#!/bin/sh
+# Launcher for the AI-agent OMEdit build: points omc at the bundled MSL (lib/omlibrary) and the user's own
+# libraries, so a fresh install can load Modelica without an installPackage step. Copy next to bin/OMEdit.
+HERE=$(cd "$(dirname "$0")/.." && pwd)
+export OPENMODELICAHOME="$HERE"
+export OPENMODELICALIBRARY="$HERE/lib/omlibrary:${HOME}/.openmodelica/libraries"
+export MODELICAPATH="$OPENMODELICALIBRARY"
+export PATH="$HERE/bin:$PATH"
+exec "$HERE/bin/OMEdit" "$@"
